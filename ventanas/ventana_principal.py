@@ -87,8 +87,6 @@ class VentanaPrincipal(QMainWindow):
         self.ventana_ventas.show()
 
     def abrir_ventana_realizar_cobro(self):
-        if hasattr(self, 'ventana_ventas') and self.ventana_ventas.productos:
-            self.ventana_cobro = VentanaCobro(self.ventana_ventas.productos)
-            self.ventana_cobro.show()
-        else:
-            QMessageBox.warning(self, "Error", "No hay productos para cobrar.")
+        self.ventana_cobro = VentanaCobro()
+        self.ventana_cobro.show()
+    
