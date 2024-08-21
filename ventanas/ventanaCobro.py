@@ -2,10 +2,9 @@ from PyQt5.QtWidgets import (
     QMainWindow, QPushButton, QLabel, QLineEdit, QTableWidget, QTableWidgetItem, 
     QVBoxLayout, QHBoxLayout, QMessageBox, QHeaderView
 )
-from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
 from controladores.ventana_controller import calcular_total
-from utils.database import buscar_producto, buscar_producto_por_nombre_bd
+from utils.producto import buscar_producto, buscar_producto_por_nombre_bd
 from models.producto import Producto
 
 
@@ -135,8 +134,9 @@ class VentanaCobro(QMainWindow):
             return
 
         productos = buscar_producto_por_nombre_bd(nombre)
+        print(productos)
         if productos:
-            self.productos = [Producto(nombre, precio, cantidad) for nombre, precio, cantidad in productos]
+            self.productos = [Producto(producto[1], producto[2], producto[3]) for producto in productos]
             self.agregar_al_carrito()
             self.actualizar_tabla()
         else:
@@ -149,9 +149,11 @@ class VentanaCobro(QMainWindow):
             return
 
         id = int(id_text)
-        producto = buscar_producto(id)
-        if producto:
-            self.productos = [Producto(*producto)]
+        productos = buscar_producto(id)
+        print(productos)
+        if productos:
+            self.productos = [Producto(producto[1], producto[2], producto[3]) for producto in productos]
+            self.agregar_al_carrito()
             self.actualizar_tabla()
         else:
             QMessageBox.warning(self, "Error", "Producto no encontrado.")

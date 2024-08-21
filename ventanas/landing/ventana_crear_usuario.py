@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 
-from utils.database import buscar_usuario, insertar_usuario
+from utils.usuario import buscar_usuario, insertar_usuario
 
 class VentanaCrearUsuario(QMainWindow):
     def __init__(self):

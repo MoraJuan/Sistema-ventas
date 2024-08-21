@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 
-from utils.database import buscar_usuario, crear_tabla_usuarios
+from utils.usuario import buscar_usuario, crear_tabla_usuarios
 
 from ventanas.ventana_principal import VentanaPrincipal
 

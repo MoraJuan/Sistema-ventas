@@ -1,8 +1,6 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget
 from PyQt5.QtCore import Qt  
-from controladores.ventana_controller import calcular_total
-from utils.database import crear_tabla_productos
+from utils.producto import crear_tabla_productos
 from ventanas.ventanaCobro import VentanaCobro
 from ventanas.ventanaVentas import VentanaVentas
 
