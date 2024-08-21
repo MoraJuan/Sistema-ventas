@@ -63,10 +63,10 @@ def insertar_usuario(usuario, contrasena):
     conn.close()
 
 
-def buscar_producto_por_nombre(nombre):
+def buscar_producto_por_nombre_bd(nombre):
     conn = conectar_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM productos WHERE nombre = ?', (nombre,))
-    producto = cursor.fetchone()
+    cursor.execute('SELECT nombre, precio, cantidad FROM productos WHERE nombre LIKE ?', ('%' + nombre + '%',))
+    productos = cursor.fetchall()
     conn.close()
-    return producto
+    return productos
