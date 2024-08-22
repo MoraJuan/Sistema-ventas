@@ -7,4 +7,4 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ventana = VentanaInicio()
     ventana.show()
-    sys.exit(app.exec_())
+    sys.exit((app.exec_()))
