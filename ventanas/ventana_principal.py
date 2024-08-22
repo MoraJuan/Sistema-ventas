@@ -9,7 +9,7 @@ class VentanaPrincipal(QMainWindow):
         super().__init__()
         self.usuario = usuario
         self.setWindowTitle("Sistema de Ventas - Menú Principal")
-        self.setGeometry(300, 300, 400, 200)
+        self.showMaximized()
 
         # Crear la tabla de productos si no existe
         crear_tabla_productos()
