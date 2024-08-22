@@ -1,0 +1,10 @@
+*.swp
+*~
+*.bak
+*.tmp
+*.log
+*.o
+*.pyc
+__pycache__/
+build/
+dist/

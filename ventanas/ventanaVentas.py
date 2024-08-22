@@ -1,8 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QPushButton, QLabel, QLineEdit, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtGui import QFont
-from utils.database import conectar_db, crear_tabla_productos, mostrar_productos
-from ventanas.ventanaCobro import VentanaCobro
+from utils.database import conectar_db
+from utils.producto import mostrar_productos
 
 class VentanaVentas(QMainWindow):
     def __init__(self):

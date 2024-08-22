@@ -2,23 +2,26 @@ from PyQt5.QtWidgets import (
     QMainWindow, QPushButton, QLabel, QLineEdit, QTableWidget, QTableWidgetItem, 
     QVBoxLayout, QHBoxLayout, QMessageBox, QHeaderView
 )
-from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget
 from controladores.ventana_controller import calcular_total
-from utils.database import buscar_producto, buscar_producto_por_nombre
+from utils.producto import buscar_producto, buscar_producto_por_nombre_bd
+from models.producto import Producto
 
 
 class VentanaCobro(QMainWindow):
-    def __init__(self, productos):
+    def __init__(self):
         super().__init__()
         self.setWindowTitle("Sistema de Ventas")
         self.setGeometry(100, 100, 800, 600)
 
-        self.productos = productos
+        self.productos = []
         self.carrito = []
 
         self.crear_widgets()
         self.crear_layout()
+
+    def cargar_productos(self, productos):
+        self.productos = [Producto(nombre, precio, cantidad) for nombre, precio, cantidad in productos]
         self.actualizar_tabla()
 
     def crear_widgets(self):
@@ -46,7 +49,7 @@ class VentanaCobro(QMainWindow):
         self.boton_cancelar = QPushButton("Cancelar Venta")
         self.boton_cancelar.clicked.connect(self.cancelar_venta)
         self.boton_agregar_carrito = QPushButton("Agregar al Carrito")
-        self.boton_agregar_carrito.clicked.connect(self.agregar_al_carrito)
+        #self.boton_agregar_carrito.clicked.connect(self.agregar_al_carrito)
         self.boton_limpiar_carrito = QPushButton("Limpiar Carrito")
         self.boton_limpiar_carrito.clicked.connect(self.limpiar_carrito)
         self.boton_generar_factura = QPushButton("Generar Factura")
@@ -119,16 +122,25 @@ class VentanaCobro(QMainWindow):
     def actualizar_tabla(self):
         self.tabla_productos.setRowCount(len(self.productos))
         for fila, producto in enumerate(self.productos):
-            if isinstance(producto, (list, tuple)) and len(producto) == 3:
-                nombre, precio, cantidad = producto
-                self.tabla_productos.setItem(fila, 0, QTableWidgetItem(nombre))
-                self.tabla_productos.setItem(fila, 1, QTableWidgetItem(str(precio)))
-                self.tabla_productos.setItem(fila, 2, QTableWidgetItem(str(cantidad)))
-            else:
-                QMessageBox.warning(self, "Error", "El formato del producto es incorrecto.")
-                self.productos = []
-                self.tabla_productos.setRowCount(0)
-                break
+            if isinstance(producto, Producto):
+                self.tabla_productos.setItem(fila, 0, QTableWidgetItem(producto.nombre))
+                self.tabla_productos.setItem(fila, 1, QTableWidgetItem(str(producto.precio)))
+                self.tabla_productos.setItem(fila, 2, QTableWidgetItem(str(producto.cantidad)))
+
+    def buscar_producto_por_nombre(self):
+        nombre = self.entrada_buscar_nombre.text()
+        if not nombre:
+            QMessageBox.warning(self, "Error", "Por favor, ingresa un nombre de producto.")
+            return
+
+        productos = buscar_producto_por_nombre_bd(nombre)
+        print(productos)
+        if productos:
+            self.productos = [Producto(producto[1], producto[2], producto[3]) for producto in productos]
+            self.agregar_al_carrito()
+            self.actualizar_tabla()
+        else:
+            QMessageBox.warning(self, "Error", "Producto no encontrado.")
 
     def buscar_producto_por_id(self):
         id_text = self.entrada_buscar_producto.text()
@@ -137,22 +149,11 @@ class VentanaCobro(QMainWindow):
             return
 
         id = int(id_text)
-        producto = buscar_producto(id)
-        if producto:
-            self.productos = [producto]
-            self.actualizar_tabla()
-        else:
-            QMessageBox.warning(self, "Error", "Producto no encontrado.")
-
-    def buscar_producto_por_nombre(self):
-        nombre = self.entrada_buscar_nombre.text()
-        if not nombre:
-            QMessageBox.warning(self, "Error", "Por favor, ingresa un nombre de producto.")
-            return
-
-        productos = buscar_producto_por_nombre(nombre)
+        productos = buscar_producto(id)
+        print(productos)
         if productos:
-            self.productos = [productos]
+            self.productos = [Producto(producto[1], producto[2], producto[3]) for producto in productos]
+            self.agregar_al_carrito()
             self.actualizar_tabla()
         else:
             QMessageBox.warning(self, "Error", "Producto no encontrado.")
@@ -161,10 +162,11 @@ class VentanaCobro(QMainWindow):
         if self.productos:
             producto = self.productos[0]
             self.carrito.append(producto)
+            self.ver_carrito()
             QMessageBox.information(self, "Carrito", "Producto agregado al carrito.")
         else:
             QMessageBox.warning(self, "Error", "No hay productos para agregar al carrito.")
-
+    
     def limpiar_carrito(self):
         self.carrito = []
         QMessageBox.information(self, "Carrito", "Carrito limpiado.")
@@ -185,8 +187,7 @@ class VentanaCobro(QMainWindow):
             QMessageBox.information(self, "Venta Cancelada", "La venta ha sido cancelada.")
         else:
             QMessageBox.warning(self, "Error", "No hay productos o carrito para cancelar.")
-    
-    
+
     def generar_factura(self):
         if not self.carrito:
             QMessageBox.warning(self, "Error", "No hay productos en el carrito para generar una factura.")
@@ -196,10 +197,9 @@ class VentanaCobro(QMainWindow):
         factura_texto = "Factura de Venta\n"
         factura_texto += "================\n"
         for producto in self.carrito:
-            nombre, precio, cantidad = producto
-            factura_texto += f"Producto: {nombre}\n"
-            factura_texto += f"Precio: ${precio:.2f}\n"
-            factura_texto += f"Cantidad: {cantidad}\n"
+            factura_texto += f"Producto: {producto.nombre}\n"
+            factura_texto += f"Precio: ${producto.precio:.2f}\n"
+            factura_texto += f"Cantidad: {producto.cantidad}\n"
             factura_texto += "----------------\n"
         factura_texto += f"Total: ${total:.2f}\n"
 
@@ -208,6 +208,16 @@ class VentanaCobro(QMainWindow):
             archivo.write(factura_texto)
 
         QMessageBox.information(self, "Factura Generada", "La factura ha sido generada y guardada como 'factura.txt'.")
-    
+
+    def ver_carrito(self):
+        carrito_texto = "Carrito de Compras\n"
+        carrito_texto += "=================\n"
+        for producto in self.carrito:
+            carrito_texto += f"Producto: {producto.nombre}\n"
+            carrito_texto += f"Precio: ${producto.precio:.2f}\n"
+
+        QMessageBox.information(self, "Carrito de Compras", carrito_texto)
+
+
     def volver_al_inicio(self):
         self.close()
