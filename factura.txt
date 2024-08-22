@@ -1,7 +1,7 @@
 Factura de Venta
 ================
-Producto: coca
-Precio: $1500.00
-Cantidad: 2
+Producto: Coca
+Precio: $12.00
+Cantidad: 1
 ----------------
-Total: $1500.00
+Total: $12.00
