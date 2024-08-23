@@ -164,7 +164,7 @@ class VentanaCobro(QMainWindow):
                 if nuevo_producto not in self.carrito:
                     self.carrito.append(nuevo_producto)
                     #funcion para que carrito le disminuya la cantidad de productos
-                    nuevo_producto.disminuir_cantidad()
+                    nuevo_producto.disminuir_cantidad(1)
             self.actualizar_tabla()
         else:
             QMessageBox.warning(self, "Error", "Producto no encontrado.")

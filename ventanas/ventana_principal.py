@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt
 from utils.producto import crear_tabla_productos
 from ventanas.ventanaCobro import VentanaCobro
 from ventanas.ventanaVentas import VentanaVentas
+from ventanas.ventanaCliente import VentanaCliente
 
 class VentanaPrincipal(QMainWindow):
     def __init__(self, usuario):
@@ -56,6 +57,26 @@ class VentanaPrincipal(QMainWindow):
             }
         """)
 
+        self.boton_agregar_cliente.setStyleSheet("""
+            QPushButton {
+                background-color: #f44336; /* Color de fondo rojo */
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 4px 2px;
+                cursor: pointer;
+                border-radius: 5px; /* Bordes redondeados */
+            }
+            QPushButton:hover {
+                background-color: #d32f2f; /* Color más oscuro al pasar el mouse */
+            }
+        """)
+
+
     def crear_widgets(self):
         self.label_usuario = QLabel(f"Bienvenido, {self.usuario}!", self)
         self.label_usuario.setAlignment(Qt.AlignCenter)
@@ -67,11 +88,15 @@ class VentanaPrincipal(QMainWindow):
         self.boton_realizar_cobro = QPushButton("Realizar Cobro", self)
         self.boton_realizar_cobro.clicked.connect(self.abrir_ventana_realizar_cobro)
 
+        self.boton_agregar_cliente = QPushButton("Agregar Cliente", self)
+        self.boton_agregar_cliente.clicked.connect(self.abrir_ventana_agregar_cliente)
+
     def crear_layout(self):
         layout = QVBoxLayout()
         layout.addWidget(self.label_usuario)
         layout.addWidget(self.boton_agregar_producto)
         layout.addWidget(self.boton_realizar_cobro)
+        layout.addWidget(self.boton_agregar_cliente)
 
         layout.setAlignment(Qt.AlignCenter)
         layout.setSpacing(15)
@@ -87,4 +112,8 @@ class VentanaPrincipal(QMainWindow):
     def abrir_ventana_realizar_cobro(self):
         self.ventana_cobro = VentanaCobro()
         self.ventana_cobro.show()
+    
+    def abrir_ventana_agregar_cliente(self):
+        self.ventana_usuario = VentanaCliente()
+        self.ventana_usuario.show()
     
