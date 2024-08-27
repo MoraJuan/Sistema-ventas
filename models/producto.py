@@ -9,3 +9,7 @@ class Producto:
 
     def calcular_subtotal(self):
         return self.precio * self.cantidad
+
+
+    def disminuir_cantidad(self, cantidad):
+        self.cantidad -= cantidad

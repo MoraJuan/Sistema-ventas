@@ -12,10 +12,12 @@ class VentanaCobro(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Sistema de Ventas")
-        self.setGeometry(100, 100, 800, 600)
+        self.showMaximized()
 
         self.productos = []
         self.carrito = []
+        self.cantidad_total = 0 
+        self.suma_total = 0
 
         self.crear_widgets()
         self.crear_layout()
@@ -43,6 +45,9 @@ class VentanaCobro(QMainWindow):
         self.boton_buscar_nombre = QPushButton("Buscar por Nombre")
         self.boton_buscar_nombre.clicked.connect(self.buscar_producto_por_nombre)
 
+        #Suma total
+        self.label_suma_total = QLabel("Suma Total: $0.00")
+
         # Botones de acción
         self.boton_finalizar = QPushButton("Finalizar Venta")
         self.boton_finalizar.clicked.connect(self.finalizar_venta)
@@ -54,6 +59,9 @@ class VentanaCobro(QMainWindow):
         self.boton_limpiar_carrito.clicked.connect(self.limpiar_carrito)
         self.boton_generar_factura = QPushButton("Generar Factura")
         self.boton_generar_factura.clicked.connect(self.generar_factura)
+        #Boton para salir
+        self.boton_salir = QPushButton("Volver al Inicio")
+        self.boton_salir.clicked.connect(self.volver_al_inicio)
 
         # Aplicar estilos a los botones
         self.estilizar_botones()
@@ -84,6 +92,7 @@ class VentanaCobro(QMainWindow):
         self.boton_buscar_producto.setStyleSheet(estilo_boton)
         self.boton_buscar_nombre.setStyleSheet(estilo_boton)
         self.boton_generar_factura.setStyleSheet(estilo_boton)
+        self.boton_salir.setStyleSheet(estilo_boton)
 
     def crear_layout(self):
         layout_principal = QVBoxLayout()
@@ -104,6 +113,11 @@ class VentanaCobro(QMainWindow):
 
         # Tabla de productos
         layout_principal.addWidget(self.tabla_productos)
+        #Apartado suma total 
+        layout_suma_total = QHBoxLayout()
+        layout_suma_total.addStretch(1)  # Espacio flexible
+        layout_suma_total.addWidget(self.label_suma_total)
+        layout_principal.addLayout(layout_suma_total)
 
         # Botones de acción
         layout_botones = QHBoxLayout()
@@ -113,19 +127,29 @@ class VentanaCobro(QMainWindow):
         layout_botones.addWidget(self.boton_agregar_carrito)
         layout_botones.addWidget(self.boton_limpiar_carrito)
         layout_botones.addWidget(self.boton_generar_factura)
+        layout_botones.addWidget(self.boton_salir)
         layout_principal.addLayout(layout_botones)
+        
 
         widget_central = QWidget()
         widget_central.setLayout(layout_principal)
         self.setCentralWidget(widget_central)
 
     def actualizar_tabla(self):
-        self.tabla_productos.setRowCount(len(self.productos))
-        for fila, producto in enumerate(self.productos):
+        # Usamos solo los productos en el carrito para evitar duplicados
+        self.tabla_productos.setRowCount(len(self.carrito))
+        cantidad_cobro = 1
+        
+        # Llenamos la tabla con los productos del carrito
+        
+
+        for fila, producto in enumerate(self.carrito):
             if isinstance(producto, Producto):
                 self.tabla_productos.setItem(fila, 0, QTableWidgetItem(producto.nombre))
                 self.tabla_productos.setItem(fila, 1, QTableWidgetItem(str(producto.precio)))
-                self.tabla_productos.setItem(fila, 2, QTableWidgetItem(str(producto.cantidad)))
+                self.tabla_productos.setItem(fila, 2, QTableWidgetItem(str(cantidad_cobro)))
+                self.suma_total += producto.precio * float(cantidad_cobro)
+        self.label_suma_total.setText(f"Suma Total: ${self.suma_total:.2f}")
 
     def buscar_producto_por_nombre(self):
         nombre = self.entrada_buscar_nombre.text()
@@ -134,10 +158,13 @@ class VentanaCobro(QMainWindow):
             return
 
         productos = buscar_producto_por_nombre_bd(nombre)
-        print(productos)
         if productos:
-            self.productos = [Producto(producto[1], producto[2], producto[3]) for producto in productos]
-            self.agregar_al_carrito()
+            nuevos_productos = [Producto(producto[1], producto[2], producto[3]) for producto in productos]
+            for nuevo_producto in nuevos_productos:
+                if nuevo_producto not in self.carrito:
+                    self.carrito.append(nuevo_producto)
+                    #funcion para que carrito le disminuya la cantidad de productos
+                    nuevo_producto.disminuir_cantidad(1)
             self.actualizar_tabla()
         else:
             QMessageBox.warning(self, "Error", "Producto no encontrado.")
@@ -148,17 +175,19 @@ class VentanaCobro(QMainWindow):
             QMessageBox.warning(self, "Error", "Por favor, ingresa un ID válido.")
             return
 
-        id = int(id_text)
-        productos = buscar_producto(id)
-        print(productos)
+        productos = buscar_producto(int(id_text))
         if productos:
-            self.productos = [Producto(producto[1], producto[2], producto[3]) for producto in productos]
-            self.agregar_al_carrito()
+            nuevos_productos = [Producto(producto[1], producto[2], producto[3]) for producto in productos]
+            for nuevo_producto in nuevos_productos:
+                if nuevo_producto not in self.carrito:
+                    self.carrito.append(nuevo_producto)
+                    self.cantidad_total += 1
             self.actualizar_tabla()
         else:
             QMessageBox.warning(self, "Error", "Producto no encontrado.")
-
-    def agregar_al_carrito(self):
+    #Esta funcion ya no se usa ya que en el buscar le hacemos el append directamente con el carrito
+    #Hacia problema con la visualizacion de la tabla de productos
+    '''def agregar_al_carrito(self):
         if self.productos:
             producto = self.productos[0]
             self.carrito.append(producto)
@@ -166,16 +195,19 @@ class VentanaCobro(QMainWindow):
             QMessageBox.information(self, "Carrito", "Producto agregado al carrito.")
         else:
             QMessageBox.warning(self, "Error", "No hay productos para agregar al carrito.")
-    
+    '''
     def limpiar_carrito(self):
         self.carrito = []
         QMessageBox.information(self, "Carrito", "Carrito limpiado.")
 
     def finalizar_venta(self):
         if self.carrito:
-            total = calcular_total(self.carrito)
+            total = self.suma_total
             QMessageBox.information(self, "Venta Finalizada", f"Total a pagar: {total}")
+            self.suma_total = 0
+            self.generar_factura()
             self.carrito = []
+            self.actualizar_tabla()
         else:
             QMessageBox.warning(self, "Error", "El carrito está vacío.")
 
@@ -217,6 +249,7 @@ class VentanaCobro(QMainWindow):
             carrito_texto += f"Precio: ${producto.precio:.2f}\n"
 
         QMessageBox.information(self, "Carrito de Compras", carrito_texto)
+
 
 
     def volver_al_inicio(self):

@@ -1,7 +1,15 @@
 Factura de Venta
 ================
-Producto: coca
-Precio: $1500.00
-Cantidad: 2
+Producto: Coca
+Precio: $12.00
+Cantidad: 0
 ----------------
-Total: $1500.00
+Producto: Pepsi
+Precio: $120.00
+Cantidad: 1
+----------------
+Producto: Pepsi
+Precio: $120.00
+Cantidad: 1
+----------------
+Total: $240.00
