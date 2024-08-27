@@ -16,6 +16,7 @@ class VentanaInicio(QMainWindow):
         super().__init__()
         self.setWindowTitle("Inicio de Sesión")
         self.setGeometry(100, 100, 400, 300)
+        
 
         self.crear_widgets()
         self.crear_layout()
@@ -94,4 +95,4 @@ class VentanaInicio(QMainWindow):
         from ventanas.landing.ventana_crear_usuario import VentanaCrearUsuario
         self.ventana_crear_usuario = VentanaCrearUsuario()
         self.ventana_crear_usuario.show()
-        self.close()
+        self.close()e

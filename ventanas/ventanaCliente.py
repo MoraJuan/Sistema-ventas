@@ -129,13 +129,13 @@ class VentanaCliente(QMainWindow):
 
         if nombre and mail and telefono:
             try:
-                # Insertar el cliente en la base de datos
+                # Insertamos el cliente en la base de datos
                 conn = conectar_db()
                 cursor = conn.cursor()
                 cursor.execute("INSERT INTO clientes (nombre, mail, telefono) VALUES (?, ?, ?)", (nombre, mail, telefono))
                 conn.commit()
 
-                # Obtener el ID del cliente recién insertado
+                # Obtenemos el ID del cliente recién insertado
                 cursor.execute("SELECT last_insert_rowid()")
                 cliente_id = cursor.fetchone()[0]
                 conn.close()
