@@ -76,6 +76,12 @@ class VentanaPrincipal(QMainWindow):
             }
         """)
 
+        # Aplicar estilos CSS al widget central
+        self.centralWidget().setStyleSheet("""
+            background-color: #f2f2f2; /* Color de fondo gris claro */
+            border-radius: 10px; /* Bordes redondeados */
+            padding: 20px;
+        """)
 
     def crear_widgets(self):
         self.label_usuario = QLabel(f"Bienvenido, {self.usuario}!", self)
@@ -116,4 +122,3 @@ class VentanaPrincipal(QMainWindow):
     def abrir_ventana_agregar_cliente(self):
         self.ventana_usuario = VentanaCliente()
         self.ventana_usuario.show()
-    

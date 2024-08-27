@@ -1,9 +1,7 @@
-# ventanas/ventanaCliente.py
-
-from PyQt5.QtWidgets import QMainWindow, QPushButton, QLabel, QLineEdit, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QMessageBox
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QMainWindow, QPushButton, QLabel, QLineEdit, QTableWidget, QTableWidgetItem, QVBoxLayout, QHBoxLayout, QMessageBox, QWidget, QDialog
 from utils.database import conectar_db
-from utils.cliente import mostrar_clientes, crear_tabla_cliente
+from utils.cliente import mostrar_clientes, crear_tabla_cliente, buscar_cliente_por_nombre_bd
+from ventanas.ventanaBuscarCliente import VentanaBuscarCliente
 
 class VentanaCliente(QMainWindow):
     def __init__(self):
@@ -30,6 +28,8 @@ class VentanaCliente(QMainWindow):
         self.boton_agregar.clicked.connect(self.agregar_cliente)
         self.boton_eliminar_seleccionado = QPushButton("Eliminar Cliente Seleccionado")
         self.boton_eliminar_seleccionado.clicked.connect(self.eliminar_cliente_seleccionado)
+        self.boton_buscar = QPushButton("Buscar Cliente")
+        self.boton_buscar.clicked.connect(self.abrir_ventana_buscar_cliente)
 
         # Tabla para mostrar los clientes
         self.tabla_clientes = QTableWidget()
@@ -63,6 +63,7 @@ class VentanaCliente(QMainWindow):
         # Layout para los botones de abajo
         layout_botones = QHBoxLayout()
         layout_botones.addWidget(self.boton_eliminar_seleccionado)
+        layout_botones.addWidget(self.boton_buscar)
         layout_botones.addWidget(self.boton_finalizar)
         layout_principal.addLayout(layout_botones)
 
@@ -104,6 +105,7 @@ class VentanaCliente(QMainWindow):
         """
         self.boton_agregar.setStyleSheet(estilo_boton)
         self.boton_eliminar_seleccionado.setStyleSheet(estilo_boton)
+        self.boton_buscar.setStyleSheet(estilo_boton)
         self.boton_finalizar.setStyleSheet(estilo_boton)
 
         # Estilos para la tabla
@@ -156,10 +158,11 @@ class VentanaCliente(QMainWindow):
             self.tabla_clientes.setItem(fila, 0, QTableWidgetItem(str(cliente_id)))
             self.tabla_clientes.setItem(fila, 1, QTableWidgetItem(nombre))
             self.tabla_clientes.setItem(fila, 2, QTableWidgetItem(mail))
-            self.tabla_clientes.setItem(fila, 3, QTableWidgetItem(telefono))
+            self.tabla_clientes.setItem(fila, 3, QTableWidgetItem(str(telefono)))
 
     def cargar_clientes(self):
         clientes_db = mostrar_clientes()
+        print("Clientes cargados desde la base de datos:", clientes_db)  # Mensaje de depuración
         self.clientes = [(cliente[0], cliente[1], cliente[2], cliente[3]) for cliente in clientes_db]
         self.actualizar_tabla()
 
@@ -177,6 +180,12 @@ class VentanaCliente(QMainWindow):
             conn.close()
         else:
             QMessageBox.warning(self, "Error", "Por favor, selecciona un cliente para eliminar.")
+    
+    def abrir_ventana_buscar_cliente(self):
+        ventana_buscar = VentanaBuscarCliente(self)
+        if ventana_buscar.exec_() == QDialog.Accepted:
+            self.clientes = ventana_buscar.resultado_busqueda
+            self.actualizar_tabla()
 
     def volver_al_inicio(self):
         self.close()
